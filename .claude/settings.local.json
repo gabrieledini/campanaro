@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(cd:*)",
+      "Bash(head:*)",
+      "Bash(cd \"C:/Users/g.dini/Downloads/campanaro\" && node --check index.html 2>&1)",
+      "Bash(node:*)"
+    ]
+  }
+}
