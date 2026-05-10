@@ -283,58 +283,32 @@
   // =====================================================================
   // CONFIGURAZIONE AUDIO
   //
-  // Il pattern esatto dei nomi file usato dal simulatore di campanologia.org
-  // non è documentato. Al primo click la pagina prova diverse convenzioni
-  // (combinazioni di base path + naming) e usa la prima che restituisce
-  // un audio caricabile, memorizzandola per i click successivi.
-  //
-  // Se nessuna combinazione funziona:
-  //   1. apri DevTools → Network sulla pagina
-  //      https://campanologia.org/simulatore-campane
-  //   2. clicca una campana e copia l'URL del file audio scaricato
-  //   3. aggiungi il pattern come prima voce di URL_BUILDERS sotto
+  // I file vivono in /bell-simulator/sound/ e usano la nomenclatura
+  // tedesca delle note (c, d, e, f, g, a, h; alterati in -is per i
+  // diesis e -es / -as / -b per i bemolle). Per i tasti neri il file
+  // contiene entrambi i nomi separati da trattino (es. cis-des2.ogg).
   // =====================================================================
 
-  const AUDIO_BASES = [
-    'https://campanologia.org/bell-simulator/audio/',
-    'https://campanologia.org/bell-simulator/sounds/',
-    'https://campanologia.org/bell-simulator/mp3/',
-    'https://campanologia.org/bell-simulator/'
-  ];
-
-  // Ogni builder riceve (basePath, note) e deve restituire un URL completo.
-  const URL_BUILDERS = [
-    (b, n) => b + encodeURIComponent(n.token) + n.octave + '.mp3',                       // DO%232.mp3
-    (b, n) => b + n.token.toLowerCase().replace(/#/g, '%23') + n.octave + '.mp3',        // do%232.mp3
-    (b, n) => b + n.token.replace('#', 'd') + n.octave + '.mp3',                         // DOd2.mp3
-    (b, n) => b + n.token.toLowerCase().replace('#', 'd') + n.octave + '.mp3',           // dod2.mp3
-    (b, n) => b + n.token.replace('#', '_diesis_') + n.octave + '.mp3',                  // DO_diesis_2.mp3
-    (b, n) => b + n.token.toLowerCase().replace('#', '_diesis_') + n.octave + '.mp3',    // do_diesis_2.mp3
-    (b, n) => b + n.token.replace('#', '-diesis-') + n.octave + '.mp3',                  // DO-diesis-2.mp3
-    (b, n) => b + n.token.toLowerCase().replace('#', '-diesis-') + n.octave + '.mp3',    // do-diesis-2.mp3
-    (b, n) => b + n.token.replace('#', 'diesis') + n.octave + '.mp3',                    // DOdiesis2.mp3
-    (b, n) => b + n.token.toLowerCase().replace('#', 'diesis') + n.octave + '.mp3',      // dodiesis2.mp3
-    // varianti con .ogg
-    (b, n) => b + encodeURIComponent(n.token) + n.octave + '.ogg',
-    (b, n) => b + n.token.toLowerCase().replace(/#/g, '%23') + n.octave + '.ogg'
-  ];
+  const AUDIO_BASE = 'https://campanologia.org/bell-simulator/sound/';
+  const AUDIO_EXT  = '.ogg';
 
   // =====================================================================
   // DEFINIZIONE NOTE
+  // (display, alt, type, file = nome tedesco usato nei nomi file)
   // =====================================================================
   const SEMITONES = [
-    { display: 'DO',   alt: null,    type: 'natural', token: 'DO'   },
-    { display: 'DO♯',  alt: 'RE♭',  type: 'sharp',   token: 'DO#'  },
-    { display: 'RE',   alt: null,    type: 'natural', token: 'RE'   },
-    { display: 'RE♯',  alt: 'MI♭',  type: 'sharp',   token: 'RE#'  },
-    { display: 'MI',   alt: null,    type: 'natural', token: 'MI'   },
-    { display: 'FA',   alt: null,    type: 'natural', token: 'FA'   },
-    { display: 'FA♯',  alt: 'SOL♭', type: 'sharp',   token: 'FA#'  },
-    { display: 'SOL',  alt: null,    type: 'natural', token: 'SOL'  },
-    { display: 'SOL♯', alt: 'LA♭',  type: 'sharp',   token: 'SOL#' },
-    { display: 'LA',   alt: null,    type: 'natural', token: 'LA'   },
-    { display: 'LA♯',  alt: 'SI♭',  type: 'sharp',   token: 'LA#'  },
-    { display: 'SI',   alt: null,    type: 'natural', token: 'SI'   }
+    { display: 'DO',   alt: null,    type: 'natural', file: 'c'       },
+    { display: 'DO♯',  alt: 'RE♭',  type: 'sharp',   file: 'cis-des' },
+    { display: 'RE',   alt: null,    type: 'natural', file: 'd'       },
+    { display: 'RE♯',  alt: 'MI♭',  type: 'sharp',   file: 'dis-es'  },
+    { display: 'MI',   alt: null,    type: 'natural', file: 'e'       },
+    { display: 'FA',   alt: null,    type: 'natural', file: 'f'       },
+    { display: 'FA♯',  alt: 'SOL♭', type: 'sharp',   file: 'fis-ges' },
+    { display: 'SOL',  alt: null,    type: 'natural', file: 'g'       },
+    { display: 'SOL♯', alt: 'LA♭',  type: 'sharp',   file: 'gis-as'  },
+    { display: 'LA',   alt: null,    type: 'natural', file: 'a'       },
+    { display: 'LA♯',  alt: 'SI♭',  type: 'sharp',   file: 'ais-b'   },
+    { display: 'SI',   alt: null,    type: 'natural', file: 'h'       }
   ];
 
   const OCTAVES = [
@@ -349,12 +323,7 @@
   // =====================================================================
   // RUNTIME STATE
   // =====================================================================
-  const audioCache = new Map();   // note key -> URL stringa
   const activeAudios = new Set();
-  let resolvedBase = null;
-  let resolvedBuilder = null;
-  let resolving = null;           // promise in-flight per la prima discovery
-
   const statusEl = document.getElementById('status');
 
   function setStatus(msg, kind) {
@@ -362,86 +331,25 @@
     statusEl.className = 'status' + (kind ? ' ' + kind : '');
   }
 
-  // =====================================================================
-  // PROBE / DISCOVERY
-  // =====================================================================
-  function probeAudio(url) {
-    return new Promise(resolve => {
-      const a = new Audio();
-      let done = false;
-      const finish = (ok) => {
-        if (done) return;
-        done = true;
-        a.removeAttribute('src');
-        try { a.load(); } catch {}
-        resolve(ok);
-      };
-      a.addEventListener('canplaythrough', () => finish(true), { once: true });
-      a.addEventListener('loadedmetadata',  () => finish(true), { once: true });
-      a.addEventListener('error',           () => finish(false), { once: true });
-      a.preload = 'auto';
-      a.src = url;
-      try { a.load(); } catch { finish(false); }
-      setTimeout(() => finish(false), 4500);
-    });
-  }
-
-  async function discover(probeNote) {
-    for (const base of AUDIO_BASES) {
-      for (const builder of URL_BUILDERS) {
-        const url = builder(base, probeNote);
-        if (await probeAudio(url)) {
-          resolvedBase = base;
-          resolvedBuilder = builder;
-          console.info('[campane] formato audio rilevato:', url);
-          return url;
-        }
-      }
-    }
-    return null;
-  }
-
-  async function urlFor(note) {
-    if (audioCache.has(note.key)) return audioCache.get(note.key);
-    if (resolvedBuilder) {
-      const url = resolvedBuilder(resolvedBase, note);
-      audioCache.set(note.key, url);
-      return url;
-    }
-    if (!resolving) {
-      setStatus('Cerco i file audio sul server di campanologia.org…');
-      resolving = discover(note).then(url => {
-        if (!url) {
-          setStatus('Nessun file audio trovato. Vedi commento in cima allo script per la diagnosi.', 'error');
-        } else {
-          setStatus('Connesso al campanile.', 'ok');
-          setTimeout(() => setStatus(''), 1800);
-        }
-        return url;
-      });
-    }
-    const probedUrl = await resolving;
-    if (!probedUrl) return null;
-    if (!audioCache.has(note.key)) {
-      const url = resolvedBuilder(resolvedBase, note);
-      audioCache.set(note.key, url);
-      return url;
-    }
-    return audioCache.get(note.key);
+  function urlFor(note) {
+    return AUDIO_BASE + note.file + note.octave + AUDIO_EXT;
   }
 
   // =====================================================================
   // PLAYBACK
   // =====================================================================
-  async function playNote(note) {
-    const url = await urlFor(note);
-    if (!url) return;
+  function playNote(note) {
+    const url = urlFor(note);
     const audio = new Audio(url);
     audio.volume = 0.85;
     activeAudios.add(audio);
     const drop = () => activeAudios.delete(audio);
     audio.addEventListener('ended', drop);
-    audio.addEventListener('error', drop);
+    audio.addEventListener('error', () => {
+      drop();
+      console.warn('[campane] errore caricamento', url);
+      setStatus('Impossibile caricare ' + note.display + note.octave, 'error');
+    });
     audio.play().catch(e => {
       drop();
       console.warn('[campane] play failed for', url, e);
@@ -469,8 +377,8 @@
       grid.className = 'grid';
       SEMITONES.forEach(s => {
         const note = {
-          key: s.token + oct.num,
-          token: s.token,
+          key: s.file + oct.num,
+          file: s.file,
           octave: oct.num,
           display: s.display,
           alt: s.alt,
