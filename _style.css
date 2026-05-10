@@ -1,0 +1,211 @@
+#wrapper{
+    position:relative;
+    width:653px;
+    height:445px;
+    background-image:url('../img/bg.png');
+    background-repeat:no-repeat;
+    background-position:bottom;
+    background-size:contain;
+    margin-bottom: 10px;
+}
+
+#flexbox{
+    padding:7px 24px 0px 29px;
+    display:flex;
+    align-content:flex-start;
+    flex-wrap:wrap;
+    row-gap:31px;
+}
+
+img {
+    animation-name:none;
+    animation-duration:2s;
+    animation-iteration-count:infinite;
+    -webkit-animation-name:none; /* Chrome, Safari, Opera */
+    -webkit-animation-duration:2s; /* Chrome, Safari, Opera */
+    -webkit-animation-iteration-count:infinite; /* Chrome, Safari, Opera */
+    transform-origin:top center;
+    width:74%;
+    position:absolute;
+    right:0;
+    left:0;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+img.bell{
+}
+
+img.clapper{
+    animation-name: swinging-clapper;
+    height: 45px;
+    position: absolute;
+    right: 0;
+    left: 0;
+}
+
+.label{
+    position: absolute;
+    bottom: 41px;
+    left: 0;
+    right: 0;
+}
+
+.button{
+    width:8.333333333%;
+    height:126px;
+    cursor:pointer;
+    text-align:center;
+    font-size:11px;
+    position:relative;
+    left:0 !important;
+    top:0 !important;
+}
+
+.button.l1{
+    top:0px;
+}
+
+.button.l2{
+    top:98px;
+}
+
+.button.l3{
+    top:247px;
+}
+
+
+.button.b1{
+    left:35px;
+}
+.button.b2{
+    left:92px;
+}
+.button.b3{
+    left:149px;
+}
+.button.b4{
+    left:205px;
+}
+.button.b5{
+    left:261px;
+}
+.button.b6{
+    left:317px;
+}
+.button.b7{
+    left:373px;
+}
+.button.b8{
+    left:429px;
+}
+.button.b9{
+    left:485px;
+}
+.button.b10{
+    left:541px;
+}
+.button.b11{
+    left:597px;
+}
+.button.b12{
+    left:653px;
+}
+
+
+
+.button.b13{
+    left:35px;
+}
+.button.b14{
+    left:92px;
+}
+.button.b15{
+    left:149px;
+}
+.button.b16{
+    left:205px;
+}
+.button.b17{
+    left:261px;
+}
+.button.b18{
+    left:317px;
+}
+.button.b19{
+    left:373px;
+}
+.button.b20{
+    left:429px;
+}
+.button.b21{
+    left:485px;
+}
+.button.b22{
+    left:541px;
+}
+.button.b23{
+    left:597px;
+}
+.button.b24{
+    left:653px;
+}
+
+
+.button.b25{
+    left:35px;
+}
+.button.b26{
+    left:92px;
+}
+.button.b27{
+    left:149px;
+}
+.button.b28{
+    left:205px;
+}
+.button.b29{
+    left:261px;
+}
+.button.b30{
+    left:317px;
+}
+.button.b31{
+    left:373px;
+}
+.button.b32{
+    left:429px;
+}
+.button.b33{
+    left:485px;
+}
+.button.b34{
+    left:541px;
+}
+.button.b35{
+    left:597px;
+}
+.button.b36{
+    left:653px;
+}
+
+@keyframes swinging {
+  0%  {rotate:0deg; animation-timing-function: ease-out;}
+  25% {rotate:-60deg; animation-timing-function: ease-in;}
+  50% {rotate:0deg; animation-timing-function: ease-out;}
+  75% {rotate:60deg; animation-timing-function: ease-in;}
+}
+
+@keyframes swinging-clapper {
+  0%  {rotate:0deg; animation-timing-function: ease-out;}
+  25% {rotate:-80deg; animation-timing-function: ease-in;}
+  50% {rotate:0deg; animation-timing-function: ease-out;}
+  75% {rotate:80deg; animation-timing-function: ease-in;}
+}
+
+@keyframes swinging-less {
+  0%  {rotate:0deg; animation-timing-function: ease-out;}
+  25% {rotate:-40deg; animation-timing-function: ease-in;}
+  50% {rotate:0deg; animation-timing-function: ease-out;}
+  75% {rotate:40deg; animation-timing-function: ease-in;}
+}
